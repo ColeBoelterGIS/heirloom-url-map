@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -38,12 +38,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }).addTo(map);
 
   // Load GeoJSON from an external file
-  fetch("boundary.json")
+  fetch("https://raw.githubusercontent.com/ColeBoelterGIS/heirloom-url-map/main/Stillwater.geojson")
     .then(response => response.json())
     .then(data => {
       L.geoJSON(data, {
         style: function (feature) {
-          return {color: "#000000"}; // Black line for features
+          return {color: "#000000", fillOpacity: 0};
+          
         }
       }).addTo(map);
     })
