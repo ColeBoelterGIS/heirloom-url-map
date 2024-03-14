@@ -32,6 +32,14 @@ async function load() {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     detectRetina: true
   }).addTo(map);
+  // Custom Icon Definition
+  var customIcon = L.icon({
+    iconUrl: 'https://i.imgur.com/ppR4Hfh.png', // Specify the path to your PNG image
+    iconSize: [38, 95], // Size of the icon
+    iconAnchor: [22, 94], // Point of the icon which will correspond to marker's location
+    popupAnchor: [-3, -76] // Point from which the popup should open relative to the iconAnchor
+  });
+  
   if (q && !params.get('center')) {
     let response = await fetch(
       `https://nominatim.openstreetmap.org/search.php?q=${encodeURIComponent(q)}&format=jsonv2`
@@ -42,13 +50,11 @@ async function load() {
       [data[0].boundingbox[1],data[0].boundingbox[3]]
     ];
     map.fitBounds(bounds);
-    // User-provided zoom over-rides this
     if (initialZoom) {
       map.setZoom(parseInt(initialZoom));
     }
   }
   map.on('moveend zoomend', () => {
-    // Update URL bar with current location
     let newZoom = map.getZoom();
     let center = map.getCenter();
     let u = new URLSearchParams();
@@ -57,12 +63,14 @@ async function load() {
     u.append('zoom', newZoom);
     history.replaceState(null, null, '?' + u.toString());
   });
+  // Use Custom Icon for Markers
   markers.forEach(s => {
-    L.marker(toPoint(s)).addTo(map);
+    L.marker(toPoint(s), {icon: customIcon}).addTo(map);
   });
 }
 load();
 </script>
+
 </body>
 </html>
 <!-- See https://github.com/simonw/url-map for documentation -->
