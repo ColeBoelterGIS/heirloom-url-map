@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -28,16 +29,13 @@ async function load() {
   let q = params.get('q');
   let markers = params.getAll('marker');
   let map = L.map('map', { zoomControl: false }).setView(toPoint(center), zoom);
- L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-  attribution: 'Tiles © Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
-  maxZoom: 19,
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 20,
   detectRetina: true
 }).addTo(map);
 
-
-
-
-  
   
   if (q && !params.get('center')) {
     let response = await fetch(
