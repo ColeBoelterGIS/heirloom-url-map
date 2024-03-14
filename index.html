@@ -1,13 +1,15 @@
-<!DOCTYPE html>
 
-<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>map.simonwillison.net</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" 
+      integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" 
+      crossorigin="">
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" 
+        integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" 
+        crossorigin=""></script>
 <style>
 html, body {
   height: 100%;
@@ -18,59 +20,44 @@ html, body {
 <body>
 <div id="map" style="width: 100%; height: 100%;"></div>
 <script>
-function toPoint(s) {
-  return s.split(",").map(parseFloat);
-}
-async function load() {
-  let params = new URLSearchParams(location.search);
-  let center = params.get('center') || '0,0';
-  let initialZoom = params.get('zoom');
-  let zoom = parseInt(initialZoom || '2', 10);
-  let q = params.get('q');
-  let markers = params.getAll('marker');
-  let map = L.map('map', { zoomControl: false }).setView(toPoint(center), zoom);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-	subdomains: 'abcd',
-	maxZoom: 20,
-  detectRetina: true
-}).addTo(map);
+document.addEventListener('DOMContentLoaded', async () => {
+  const toPoint = (s) => s.split(",").map(parseFloat);
 
+  const params = new URLSearchParams(location.search);
+  const center = params.get('center') || '0,0';
+  const initialZoom = params.get('zoom');
+  const zoom = parseInt(initialZoom || '2', 10);
   
-  if (q && !params.get('center')) {
-    let response = await fetch(
-      `https://nominatim.openstreetmap.org/search.php?q=${encodeURIComponent(q)}&format=jsonv2`
-    )
-    let data = await response.json();
-    let bounds = [
-      [data[0].boundingbox[0],data[0].boundingbox[2]],
-      [data[0].boundingbox[1],data[0].boundingbox[3]]
-    ];
-    map.fitBounds(bounds);
-    // User-provided zoom over-rides this
-    if (initialZoom) {
-      map.setZoom(parseInt(initialZoom));
-    }
-  }
+  const map = L.map('map', { zoomControl: false }).setView(toPoint(center), zoom);
+  
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 20,
+    detectRetina: true
+  }).addTo(map);
+
+  // Load GeoJSON from an external file
+  fetch("boundary.json")
+    .then(response => response.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: function (feature) {
+          return {color: "#000000"}; // Black line for features
+        }
+      }).addTo(map);
+    })
+    .catch(error => console.log('Error loading the GeoJSON data: ', error));
+
   map.on('moveend zoomend', () => {
-    // Update URL bar with current location
-    let newZoom = map.getZoom();
-    let center = map.getCenter();
-    let u = new URLSearchParams();
-    markers.forEach(s => u.append('marker', s));
+    const newZoom = map.getZoom();
+    const center = map.getCenter();
+    const u = new URLSearchParams();
     u.append('center', `${center.lat},${center.lng}`);
     u.append('zoom', newZoom);
     history.replaceState(null, null, '?' + u.toString());
   });
-  markers.forEach(s => {
-    L.marker(toPoint(s)).addTo(map);
-  });
-}
-load();
+});
 </script>
 </body>
 </html>
-<!-- See https://github.com/simonw/url-map for documentation -->
-</body>
-</html>
-<!-- See https://github.com/simonw/url-map for documentation -->
