@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const markers = params.getAll('marker');
   const map = L.map('map', { zoomControl: false, scrollWheelZoom: false, tap: false, dragging: false,doubleClickZoom:false,boxZoom:false}).setView(toPoint(center), zoom);
     
-}).setView(toPoint(center), zoom);
   
   
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
