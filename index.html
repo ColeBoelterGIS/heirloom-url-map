@@ -29,9 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const zoom = parseInt(initialZoom || '2', 10);
   const q = params.get('q')
   const markers = params.getAll('marker');
-  const map = L.map('map', {
-    zoomControl: true, // Enable the zoom control
-    scrollWheelZoom: false // Disable zooming with the scroll wheel
+  const map = L.map('map', { zoomControl: false, scrollWheelZoom: false, tap: false, dragging: false,doubleClickZoom:false,boxZoom:false}).setView(toPoint(center), zoom);
     
 }).setView(toPoint(center), zoom);
   
