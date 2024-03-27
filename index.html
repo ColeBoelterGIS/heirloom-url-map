@@ -32,9 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const map = L.map('map', {
     zoomControl: true, // Enable the zoom control
     scrollWheelZoom: false, // Disable zooming with the scroll wheel
-    touchZoom: false, // Disable zooming with touch gestures
-    doubleClickZoom: true,
-    boxZoom: false // Disable zooming with box selection (click and drag)
+    
 }).setView(toPoint(center), zoom);
   
   
