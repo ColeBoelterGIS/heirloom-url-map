@@ -26,6 +26,7 @@
     function toPoint(s) {
       return s.split(",").map(parseFloat);
     }
+
     async function load() {
       let params = new URLSearchParams(location.search);
       let center = params.get('center') || '0,0';
@@ -33,15 +34,17 @@
       let zoom = parseInt(initialZoom || '2', 10);
       let q = params.get('q');
       let markers = params.getAll('marker');
+      
       let map = L.map('map', { zoomControl: true, gestureHandling: true }).setView(toPoint(center), zoom);
-      const tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 20,
         detectRetina: true
       }).addTo(map);
-      
-      const StillwaterBorder = fetch("https://raw.githubusercontent.com/ColeBoelterGIS/heirloom-url-map/main/Stillwater.geojson")
+
+      fetch("https://raw.githubusercontent.com/ColeBoelterGIS/heirloom-url-map/main/Stillwater.geojson")
         .then(response => response.json())
         .then(data => {
           L.geoJSON(data, {
@@ -52,7 +55,7 @@
         });
 
       const arcgisFeatureLayerURL = 'https://services3.arcgis.com/eUyz58xtA1naNJoX/arcgis/rest/services/Parcels/FeatureServer/0';
-      const arcgisFeatureLayer = L.esri.featureLayer({
+      L.esri.featureLayer({
         url: arcgisFeatureLayerURL,
         minZoom: 18,
         style: function (feature) {
@@ -62,7 +65,7 @@
             fill: false
           };
         }
-      });
+      }).addTo(map);
 
       if (q && !params.get('center')) {
         let response = await fetch(`https://nominatim.openstreetmap.org/search.php?q=${encodeURIComponent(q)}&format=jsonv2`);
@@ -76,6 +79,7 @@
           map.setZoom(parseInt(initialZoom));
         }
       }
+
       map.on('moveend zoomend', () => {
         let newZoom = map.getZoom();
         let center = map.getCenter();
@@ -85,6 +89,10 @@
         u.append('zoom', newZoom);
         history.replaceState(null, null, '?' + u.toString());
       });
+
+      if (!Array.isArray(markers)) {
+        markers = [markers];
+      }
       markers.forEach(s => {
         L.marker(toPoint(s)).addTo(map);
       });
@@ -93,4 +101,3 @@
   </script>
 </body>
 </html>
-<!-- See https://github.com/simonw/url-map for documentation -->
