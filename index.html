@@ -89,9 +89,6 @@
         u.append('zoom', newZoom);
         history.replaceState(null, null, '?' + u.toString());
       });
-
-      if (!Array.isArray(markers)) {
-        markers = [markers];
       }
       markers.forEach(s => {
         L.marker(toPoint(s)).addTo(map);
