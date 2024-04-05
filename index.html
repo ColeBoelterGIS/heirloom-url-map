@@ -5,16 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>map.simonwillison.net</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css" type="text/css">
 <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet-gesture-handling"></script>
 <style>
 html, body {
   height: 100%;
   margin: 0;
 }
+#map {
+  width: 100%;
+  height: 100%;
+}
 </style>
 </head>
 <body>
-<div id="map" style="width: 100%; height: 100%;"></div>
+<div id="map"></div>
 <script>
 function toPoint(s) {
   return s.split(",").map(parseFloat);
@@ -26,22 +32,25 @@ async function load() {
   let zoom = parseInt(initialZoom || '2', 10);
   let q = params.get('q');
   let markers = params.getAll('marker');
-  let map = L.map('map', { zoomControl: false }).setView(toPoint(center), zoom);
-       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 20,
-        detectRetina: true
+  
+  let map = L.map('map', { zoomControl: false, gestureHandling: true }).setView(toPoint(center), zoom);
+  
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 20,
+    detectRetina: true
+  }).addTo(map);
+  
+  fetch("https://raw.githubusercontent.com/ColeBoelterGIS/heirloom-url-map/main/Stillwater.geojson")
+    .then(response => response.json())
+    .then(data => {
+      L.geoJSON(data, {
+        style: function (feature) {
+          return { color: "#000000", fillOpacity: 0 };
+        }
       }).addTo(map);
-        fetch("https://raw.githubusercontent.com/ColeBoelterGIS/heirloom-url-map/main/Stillwater.geojson")
-        .then(response => response.json())
-        .then(data => {
-          L.geoJSON(data, {
-            style: function (feature) {
-              return { color: "#000000", fillOpacity: 0 };
-            }
-          }).addTo(map);
-        });
+    });
 
   if (q && !params.get('center')) {
     let response = await fetch(
@@ -58,6 +67,7 @@ async function load() {
       map.setZoom(parseInt(initialZoom));
     }
   }
+  
   map.on('moveend zoomend', () => {
     // Update URL bar with current location
     let newZoom = map.getZoom();
@@ -68,6 +78,7 @@ async function load() {
     u.append('zoom', newZoom);
     history.replaceState(null, null, '?' + u.toString());
   });
+  
   markers.forEach(s => {
     L.marker(toPoint(s)).addTo(map);
   });
