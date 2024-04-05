@@ -89,7 +89,7 @@
         u.append('zoom', newZoom);
         history.replaceState(null, null, '?' + u.toString());
       });
-      }
+
       markers.forEach(s => {
         L.marker(toPoint(s)).addTo(map);
       });
