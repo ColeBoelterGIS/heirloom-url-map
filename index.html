@@ -30,13 +30,14 @@
     }
 
     async function load() {
+      let params = new URLSearchParams(location.search);
       let centerParam = params.get('center');
       let center = centerParam ? centerParam.split(",").map(parseFloat) : [0, 0];
       let initialZoom = params.get('zoom');
       let zoom = parseInt(initialZoom || '2', 10);
       let q = params.get('q');
       let markers = params.getAll('marker');
-      
+
       let map = L.map('map', { zoomControl: true, gestureHandling: true }).setView(toPoint(center), zoom);
 
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
