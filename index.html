@@ -21,11 +21,13 @@ function toPoint(s) {
 }
 async function load() {
   let params = new URLSearchParams(location.search);
-  let center = params.get('center') || '0,0';
+  let centerParam = params.get('center');
+  let center = centerParam ? centerParam.split(",").map(parseFloat) : [0, 0];
   let initialZoom = params.get('zoom');
   let zoom = parseInt(initialZoom || '2', 10);
   let q = params.get('q');
   let markers = params.getAll('marker');
+
   let map = L.map('map', { zoomControl: false }).setView(toPoint(center), zoom);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
